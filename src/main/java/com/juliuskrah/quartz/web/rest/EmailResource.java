@@ -2,6 +2,7 @@ package com.juliuskrah.quartz.web.rest;
 
 import static org.springframework.http.HttpStatus.CREATED;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,10 +20,12 @@ import com.juliuskrah.quartz.service.EmailService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1.0")
+@RequestMapping("/task/email")
 @RequiredArgsConstructor
 public class EmailResource {
-	private final EmailService emailService;
+
+	@Autowired
+	private EmailService emailService;
 
 	@PostMapping(path = "/groups/{group}/jobs")
 	public ResponseEntity<JobDescriptor> createJob(@PathVariable String group, @RequestBody JobDescriptor descriptor) {

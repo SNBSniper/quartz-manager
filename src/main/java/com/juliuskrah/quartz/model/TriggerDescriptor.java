@@ -8,47 +8,31 @@ import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import static org.quartz.TriggerBuilder.newTrigger;
 import static org.springframework.util.StringUtils.isEmpty;
 
-import java.sql.Date;
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.TimeZone;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.*;
+import lombok.experimental.Accessors;
 import org.hibernate.validator.constraints.NotBlank;
 import org.quartz.JobDataMap;
 import org.quartz.Trigger;
 
-import lombok.Data;
 
-@Data
+@Builder
+@Getter @Setter
+@Accessors(fluent = true)
+@ToString
 public class TriggerDescriptor {
 	@NotBlank
 	private String name;
 	private String group;
-	private LocalDateTime fireTime;
+
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "America/Santiago")
+	private Date fireTime;
 	private String cron;
-
-	public TriggerDescriptor setName(final String name) {
-		this.name = name;
-		return this;
-	}
-
-	public TriggerDescriptor setGroup(final String group) {
-		this.group = group;
-		return this;
-	}
-
-	public TriggerDescriptor setFireTime(final LocalDateTime fireTime) {
-		this.fireTime = fireTime;
-		return this;
-	}
-
-	public TriggerDescriptor setCron(final String cron) {
-		this.cron = cron;
-		return this;
-	}
-
-	private String buildName() {
-		return isEmpty(name) ? randomUUID().toString() : name;
-	}
 
 	/**
 	 * Convenience method for building a Trigger
@@ -61,20 +45,21 @@ public class TriggerDescriptor {
 			if (!isValidExpression(cron))
 				throw new IllegalArgumentException("Provided expression " + cron + " is not a valid cron expression");
 			return newTrigger()
-					.withIdentity(buildName(), group)
+					.withIdentity(name(), group)
 					.withSchedule(cronSchedule(cron)
 							.withMisfireHandlingInstructionFireAndProceed()
 							.inTimeZone(TimeZone.getTimeZone(systemDefault())))
 					.usingJobData("cron", cron)
 					.build();
 		} else if (!isEmpty(fireTime)) {
+
 			JobDataMap jobDataMap = new JobDataMap();
 			jobDataMap.put("fireTime", fireTime);
 			return newTrigger()
-					.withIdentity(buildName(), group)
+					.withIdentity(name(), group)
 					.withSchedule(simpleSchedule()
 							.withMisfireHandlingInstructionNextWithExistingCount())
-					.startAt(Date.from(fireTime.atZone(systemDefault()).toInstant()))
+					.startAt(fireTime)
 					.usingJobData(jobDataMap)
 					.build();
 		}
@@ -88,13 +73,13 @@ public class TriggerDescriptor {
 	 *            the Trigger used to build this descriptor
 	 * @return the TriggerDescriptor
 	 */
-	public static TriggerDescriptor buildDescriptor(Trigger trigger) {
-		// @formatter:off
-		return new TriggerDescriptor()
-				.setName(trigger.getKey().getName())
-				.setGroup(trigger.getKey().getGroup())
-				.setFireTime((LocalDateTime) trigger.getJobDataMap().get("fireTime"))
-				.setCron(trigger.getJobDataMap().getString("cron"));
-		// @formatter:on
-	}
+//	public static TriggerDescriptor buildDescriptor(Trigger trigger) {
+//		// @formatter:off
+//		return new TriggerDescriptor()
+//				.name(trigger.getKey().getName())
+//				.setGroup(trigger.getKey().getGroup())
+//				.setFireTime((LocalDateTime) trigger.getJobDataMap().get("fireTime"))
+//				.setCron(trigger.getJobDataMap().getString("cron"));
+//		// @formatter:on
+//	}
 }

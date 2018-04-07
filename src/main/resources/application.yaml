@@ -1,19 +1,45 @@
-liquibase:
-  enabled: false
 spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/meeting_microservice?autoReconnect=true&useSSL=false&createDatabaseIfNotExist=true
+    username: root
+    password:
+    driver-class-name: com.mysql.jdbc.Driver
+    continue-on-error: true
+    driver: com.mysql.-jdbc.Driver
+
   jackson:
     serialization:
       write-dates-as-timestamps: false
+
   mail:
-    host: smtp.gmail.com
-    port: 587
-    test-connection: true
-    username: ${gmail.username}
-    password: ${gmail.password}
-    properties:
-      mail.smtp.starttls.enable: true
+      host: smtp.gmail.com
+      port: 587
+      test-connection: false
+      username: ${gmail.username}
+      password: ${gmail.password}
+      properties:
+        mail.smtp.starttls.enable: true
+  application:
+    name: meeting-service
+
   jpa:
     hibernate:
-      ddl-auto: none
-    
-  
+      ddl-auto: update
+
+  mvc:
+    throw-exception-if-no-handler-found: true
+  resources:
+    add-mappings: false
+  jooq:
+    sql-dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+
+server:
+  port: 20001
+  context-path: /api/v2
+#  error:
+#    whitelabel:
+#      enabled: false
+logging:
+  level:
+    root: INFO
+debug: true
