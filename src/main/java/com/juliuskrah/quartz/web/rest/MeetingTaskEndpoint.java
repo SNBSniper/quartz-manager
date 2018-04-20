@@ -16,6 +16,7 @@ public class MeetingTaskEndpoint {
 
     @RequestMapping(path = "/groups/{group}/jobs", method = RequestMethod.POST)
     public ApiResponse createJob(WebRequest request, @PathVariable String group, @RequestBody MeetingJobDescriptor descriptor) {
+        descriptor.setGroup(group);
         MeetingJobDescriptor job = meetingService.createJob(group, descriptor);
         return ApiResponse.success(request, job);
     }

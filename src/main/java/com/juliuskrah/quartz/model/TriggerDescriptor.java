@@ -8,6 +8,7 @@ import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import static org.quartz.TriggerBuilder.newTrigger;
 import static org.springframework.util.StringUtils.isEmpty;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -25,7 +26,7 @@ import org.quartz.Trigger;
 @Getter @Setter
 @Accessors(fluent = true)
 @ToString
-public class TriggerDescriptor {
+public class TriggerDescriptor implements Serializable{
 	@NotBlank
 	private String name;
 	private String group;
@@ -48,7 +49,7 @@ public class TriggerDescriptor {
 					.withIdentity(name(), group)
 					.withSchedule(cronSchedule(cron)
 							.withMisfireHandlingInstructionFireAndProceed()
-							.inTimeZone(TimeZone.getTimeZone(systemDefault())))
+							.inTimeZone(TimeZone.getTimeZone(systemDefault()))	)
 					.usingJobData("cron", cron)
 					.build();
 		} else if (!isEmpty(fireTime)) {
@@ -58,8 +59,9 @@ public class TriggerDescriptor {
 			return newTrigger()
 					.withIdentity(name(), group)
 					.withSchedule(simpleSchedule()
-							.withMisfireHandlingInstructionNextWithExistingCount())
+							.withMisfireHandlingInstructionFireNow())
 					.startAt(fireTime)
+
 					.usingJobData(jobDataMap)
 					.build();
 		}
@@ -73,13 +75,14 @@ public class TriggerDescriptor {
 	 *            the Trigger used to build this descriptor
 	 * @return the TriggerDescriptor
 	 */
-//	public static TriggerDescriptor buildDescriptor(Trigger trigger) {
-//		// @formatter:off
-//		return new TriggerDescriptor()
-//				.name(trigger.getKey().getName())
-//				.setGroup(trigger.getKey().getGroup())
-//				.setFireTime((LocalDateTime) trigger.getJobDataMap().get("fireTime"))
-//				.setCron(trigger.getJobDataMap().getString("cron"));
-//		// @formatter:on
-//	}
+	public static TriggerDescriptor buildDescriptor(Trigger trigger) {
+		// @formatter:off
+		return TriggerDescriptor.builder()
+				.name(trigger.getKey().getName())
+				.group(trigger.getKey().getGroup())
+				.fireTime((Date) trigger.getJobDataMap().get("fireTime"))
+				.cron(trigger.getJobDataMap().getString("cron"))
+				.build();
+//		 @formatter:on
+	}
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.juliuskrah.quartz.job.MeetingJob;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.quartz.JobDataMap;
@@ -17,7 +18,9 @@ import java.util.*;
 @Data
 @Getter @Setter
 @Builder
+@Slf4j
 public class MeetingJobDescriptor {
+
 
     @NotBlank
     private String name;
@@ -40,7 +43,8 @@ public class MeetingJobDescriptor {
         if(triggerDescriptors == null)
             this.triggerDescriptors = new ArrayList<>();
         for(TriggerDescriptor i : triggerDescriptors){
-            triggers.add(i.buildTrigger());
+            Trigger j = i.buildTrigger();
+            triggers.add(j);
         }
         return triggers;
     }
@@ -49,10 +53,13 @@ public class MeetingJobDescriptor {
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("start_date", start_date);
         jobDataMap.put("end_date", end_date);
+        log.info("start_date for job"+start_date );
+        log.info("end_date for job"+end_date );
         return newJob(MeetingJob.class)
-
-                .withIdentity(getName(), getGroup())
+                .requestRecovery(true)
+                .withIdentity(this.getName(), this.getGroup())
                 .usingJobData(jobDataMap)
+                .storeDurably(true)
                 .build();
     }
 }

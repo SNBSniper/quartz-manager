@@ -23,7 +23,7 @@ import java.util.concurrent.Executor;
 
 @SpringBootApplication
 @EnableConfigurationProperties(QuartzProperties.class)
-public class  Application {
+public class  Application  implements  AsyncConfigurer{
 
     @Autowired
     private QuartzProperties properties;
@@ -48,6 +48,7 @@ public class  Application {
                                                  DataSource dataSource) {
         SchedulerFactoryBean schedulerFactoryBean = new SchedulerFactoryBean();
         schedulerFactoryBean.setDataSource(dataSource);
+        schedulerFactoryBean.setAutoStartup(true);
         schedulerFactoryBean.setConfigLocation(new ClassPathResource("quartz.properties"));
 //        schedulerFactoryBean.setTaskExecutor(taskExecutor);
         schedulerFactoryBean.setJobFactory(new AutowireCapableBeanJobFactory(applicationContext.getAutowireCapableBeanFactory()));
@@ -55,19 +56,19 @@ public class  Application {
         return schedulerFactoryBean;
     }
 
-//    @Override
-//    @Bean(name = "taskExecutor")
-//    public Executor getAsyncExecutor() {
-//        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-//        executor.setCorePoolSize(5);
-//        executor.setMaxPoolSize(6);
-//        executor.setQueueCapacity(100);
-//        executor.setThreadNamePrefix("email-");
-//        return executor;
-//    }
-//
-//    @Override
-//    public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
-//        return new SimpleAsyncUncaughtExceptionHandler();
-//    }
+    @Override
+    @Bean(name = "taskExecutor")
+    public Executor getAsyncExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(5);
+        executor.setMaxPoolSize(6);
+        executor.setQueueCapacity(100);
+        executor.setThreadNamePrefix("email-");
+        return executor;
+    }
+
+    @Override
+    public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+        return new SimpleAsyncUncaughtExceptionHandler();
+    }
 }
