@@ -27,4 +27,10 @@ public class MeetingTaskEndpoint {
 
         return ApiResponse.success(request,job);
     }
+
+    @RequestMapping(path = "/groups/{group}/jobs/{name}", method = RequestMethod.PUT)
+    public ApiResponse updatedJob(WebRequest request, @PathVariable String group, @PathVariable String  name){
+        MeetingJobDescriptor job = meetingService.updatedJob(group,name);
+        return ApiResponse.success(request,job);
+    }
 }

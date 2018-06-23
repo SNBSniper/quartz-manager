@@ -6,31 +6,11 @@ spring:
     driver-class-name: com.mysql.jdbc.Driver
     continue-on-error: true
     driver: com.mysql.jdbc.Driver
+    initialize: true
 
   jackson:
     serialization:
       write-dates-as-timestamps: false
-  quartz:
-#    job-store-type: jdbc
-#    jdbc:
-#      initialize-schema: always
-    properties:
-      org:
-        quartz:
-#          context:
-#            key:
-#              QuartzTopic: QuartzPorperties
-#          jobStore:
-#            driver: com.mysql.jdbc.Driver
-#            class: org.quartz.impl.jdbcjobstore.JobStoreTX
-#            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
-#            misfireThreshold: 6000
-#            tablePrefix: QRTZ_
-          threadPool:
-            threadCount: 25
-            class: org.quartz.simpl.SimpleThreadPool
-#          scheduler:
-#            instanceName: SchedulerWA
   mail:
       host: smtp.gmail.com
       port: 587

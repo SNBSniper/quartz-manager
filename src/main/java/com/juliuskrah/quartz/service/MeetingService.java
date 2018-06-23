@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-import static org.quartz.JobKey.jobKey;
 
 @Slf4j
 @Service
@@ -70,6 +69,10 @@ public class MeetingService {
             e.printStackTrace();
         }
 
+        return null;
+    }
+
+    public MeetingJobDescriptor updatedJob(String group, String name) {
         return null;
     }
 }
